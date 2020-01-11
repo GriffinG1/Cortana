@@ -38,14 +38,17 @@ class Logger(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        if not os.path.exists("logger_config.json"):
-            with open("logger_config.json", "w") as f:
+        self.path = os.path.dirname(os.path.realpath(__file__))
+        self.config_path = os.path.join(self.path, "logger_config.json")
+        if not os.path.exists(self.config_path):
+            with open(self.config_path, "w") as f:
                 json.dump(CONFIG_CONTENTS, f, indent=4)
-        with open("logger_config.py" "r") as f:
+            print(f"Config did not exist. Created config at {self.config_path}")
+        with open(self.config_path, "r") as f:
             self.config = json.load(f)
         if self.config["config_version"] != CURR_CONFIG_VERSION:
             print("Logger config is outdated. Replacing config with latest...")
-            with open("logger_config.json", "w") as f:
+            with open(self.config_path, "w") as f:
                 temp_config = CONFIG_CONTENTS
                 try:
                     temp_config["guild"] = self.config["guild"]
@@ -54,7 +57,7 @@ class Logger(commands.Cog):
                     temp_config["guild"] = 0
                 for item in self.config["options"]:
                     try:
-                        temp_config[item] = self.config["options"][item]
+                        temp_config["options"][item] = self.config["options"][item]
                     except KeyError:
                         print(f"Could not set '{item}' as it has been deprecated.")
                 self.config = temp_config
@@ -70,11 +73,13 @@ class Logger(commands.Cog):
         self.guild = self.config["guild"]
         if not os.path.isdir("saves/{}".format(self.config["guild"])):
             os.mkdir("saves/{}".format(self.config["guild"]))
-        self.path = os.path.dirname(os.path.realpath(__file__))
-        self.path = os.path.join(self.path, "saves/{}".format(self.config["guild"]))
+        self.storage_path = os.path.join(self.path, "saves\\{}".format(self.config["guild"]))
+        auth_user_str = ", ".join(str(x) for x in self.auth_users)
+        print(f"Addon \"{self.__class__.__name__}\" loaded")
         print(f"Current logging state is: {self.enable_logging}.")
         print(f"Current moderator action logging state is: {self.log_mod_actions}")
         print(f"Current log all messages state is: {self.log_all}")
+        print(f"Active storage path: {self.storage_path}")
         print(f"Logged guild ID is: {self.guild}")
         print(f"Authorized user IDs are: {auth_user_str}")
 
