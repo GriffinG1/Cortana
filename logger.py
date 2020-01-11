@@ -78,6 +78,52 @@ class Logger(commands.Cog):
         print(f"Logged guild ID is: {self.guild}")
         print(f"Authorized user IDs are: {auth_user_str}")
 
+    @commands.group(name="authusers")
+    async def auth(self, ctx):
+        """Group command for adjusting authorized users. Displays all auth users. Subcommands: add, remove"""
+        if not ctx.invoked_subcommand:
+            auth_users_str = ", ".join(str(x) for x in self.auth_users)
+            return await ctx.send(f"Authorized user IDs: {auth_users_str}\nYou can use the subcommands `add` and `remove` to adjust authorized users.")
+    
+    @auth.command()
+    async def add(self, ctx, id: int):
+        """Adds an authorized user"""
+        if not ctx.author.id in self.auth_users:
+            raise commands.CheckFailure
+        elif id == MODULE_CREATOR_ID and len(self.auth_users) == 1:
+            self.auth_users.remove(id)
+        elif id in self.auth_users:
+            return await ctx.send("That user has already been added!")
+        try:
+            await self.bot.fetch_user(id)
+        except discord.NotFound:
+            return await ctx.send("That user could not be found!")
+        self.auth_users.append(int(id))
+        with open(self.config_path, "w") as f:
+            json.dump(self.config, f, indent=4)
+        await ctx.send(f"Authorized user with ID `{id}`")
+
+    @auth.command()
+    async def remove(self, ctx, id: int):
+        """Removes an authorized user. If all users are removed, adds back bot creator ID."""
+        if not ctx.author.id in self.auth_users:
+            raise commands.CheckFailure
+        elif id not in self.auth_users:
+            return await ctx.send("That user isn't authorized!")
+        elif id == ctx.author.id:
+            return await ctx.send("As a safety measure, you cannot deauthorize yourself.")
+        try:
+            await self.bot.fetch_user(id)
+        except discord.NotFound:
+            return await ctx.send("That user could not be found!")
+        self.auth_users.remove(int(id))
+        with open(self.config_path, "w") as f:
+            json.dump(self.config, f, indent=4)
+        if len(self.auth_users) == 0:
+            self.auth_users.append(MODULE_CREATOR_ID)
+            return await ctx.send(f"Deauthorized user with ID `{id}`. This was the last authorized user, so the module creator was added to the RAM list.")
+        await ctx.send(f"Deauthorized user with ID `{id}`.")
+
 
 def setup(bot):
     bot.add_cog(Logger(bot))
