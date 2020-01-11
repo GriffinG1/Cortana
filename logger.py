@@ -71,8 +71,10 @@ class Logger(commands.Cog):
             print("No authorized users set in config. Defaulting to module creator.")
             self.auth_users.append(MODULE_CREATOR_ID)
         self.guild = self.config["guild"]
-        if not os.path.isdir("saves/{}".format(self.config["guild"])):
-            os.mkdir("saves/{}".format(self.config["guild"]))
+        if not os.path.isdir(os.path.join(self.path, "saves")):
+            os.mkdir(os.path.join(self.path, "saves"))
+        if not os.path.exists(os.path.join(self.path, "saves\\{}".format(self.config["guild"]))):
+            os.mkdir(os.path.join(self.path, "saves\\{}".format(self.config["guild"])))
         self.storage_path = os.path.join(self.path, "saves\\{}".format(self.config["guild"]))
         auth_user_str = ", ".join(str(x) for x in self.auth_users)
         print(f"Addon \"{self.__class__.__name__}\" loaded")
