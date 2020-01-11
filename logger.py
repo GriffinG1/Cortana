@@ -78,6 +78,22 @@ class Logger(commands.Cog):
         print(f"Logged guild ID is: {self.guild}")
         print(f"Authorized user IDs are: {auth_user_str}")
 
+    @commands.command(name="setguild")
+    async def set_guild(self, ctx, id: int):
+        """Sets config["guild"] to inputted ID"""
+        if not ctx.author.id in self.auth_users:
+            raise commands.CheckFailure
+        try:
+            await self.bot.fetch_guild(id)
+        except discord.HTTPException:
+            return await ctx.send("That's not a server!")
+        self.config["guild"] = id
+        self.guild = id
+        self.storage_path = os.path.join(self.path, "saves\\{}".format(id))
+        with open(self.config_path, "w") as f:
+            json.dump(self.config, f, indent=4)
+        await ctx.send(f"Set logging guild ID to `{id}`.")
+
     @commands.group(name="authusers")
     async def auth(self, ctx):
         """Group command for adjusting authorized users. Displays all auth users. Subcommands: add, remove"""
