@@ -24,7 +24,7 @@ CURR_CONFIG_VERSION = "1.0.0"
 CONFIG_CONTENTS = {  # Allows me to expand this later if I choose
     "options": {
         "enable_logger": True,
-        "log_moderator_actions": True
+        "log_moderator_actions": True,
         "authorized_users": [0, 0]
     },
     "config_version": CURR_CONFIG_VERSION,
