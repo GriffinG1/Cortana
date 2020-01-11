@@ -36,9 +36,9 @@ class Logger(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        if not os.exists("logger_config.json"):
+        if not os.path.exists("logger_config.json"):
             with open("logger_config.json", "w") as f:
-                json.dump(config_contents, f, indent=4)
+                json.dump(CONFIG_CONTENTS, f, indent=4)
         with open("logger_config.py" "r") as f:
             self.config = json.load(f)
         if self.config["config_version"] != CURR_CONFIG_VERSION:
@@ -65,7 +65,7 @@ class Logger(commands.Cog):
         self.path = os.path.dirname(os.path.realpath(__file__))
         self.path = os.path.join(self.path, "saves/{}".format(self.config["guild"]))
         print(f"Current logging state is: {self.enable_logging}.")
-        print(f"Current moderator action logging state is: {self.log_moderator_actions}")
+        print(f"Current moderator action logging state is: {self.log_mod_actions}")
         print(f"Active storage path: {self.path}")
 
 
