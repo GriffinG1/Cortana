@@ -20,12 +20,14 @@ import json
 from datetime import datetime
 from discord.ext import commands
 
-CURR_CONFIG_VERSION = "1.0.0"
+MODULE_CREATOR_ID = 177939404243992578
+CURR_CONFIG_VERSION = "1.0.1"
 CONFIG_CONTENTS = {  # Allows me to expand this later if I choose
     "options": {
         "enable_logger": True,
         "log_moderator_actions": True,
-        "authorized_users": [0, 0]
+        "log_all_messages": True,
+        "authorized_users": []
     },
     "config_version": CURR_CONFIG_VERSION,
     "guild": 0
@@ -60,13 +62,21 @@ class Logger(commands.Cog):
                 print("Finished replacing config. Please verify your settings.")
         self.enable_logging = self.config["options"]["enable_logger"]
         self.log_mod_actions = self.config["options"]["log_moderator_actions"]
+        self.auth_users = self.config["options"]["authorized_users"]
+        self.log_all = self.config["options"]["log_all_messages"]
+        if not self.auth_users:
+            print("No authorized users set in config. Defaulting to module creator.")
+            self.auth_users.append(MODULE_CREATOR_ID)
+        self.guild = self.config["guild"]
         if not os.path.isdir("saves/{}".format(self.config["guild"])):
             os.mkdir("saves/{}".format(self.config["guild"]))
         self.path = os.path.dirname(os.path.realpath(__file__))
         self.path = os.path.join(self.path, "saves/{}".format(self.config["guild"]))
         print(f"Current logging state is: {self.enable_logging}.")
         print(f"Current moderator action logging state is: {self.log_mod_actions}")
-        print(f"Active storage path: {self.path}")
+        print(f"Current log all messages state is: {self.log_all}")
+        print(f"Logged guild ID is: {self.guild}")
+        print(f"Authorized user IDs are: {auth_user_str}")
 
 
 def setup(bot):
