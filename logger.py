@@ -92,7 +92,6 @@ class Logger(commands.Cog):
             await self.bot.fetch_guild(id)
         except discord.HTTPException:
             return await ctx.send("That's not a server!")
-        self.config["guild"] = id
         self.guild = id
         self.storage_path = os.path.join(self.path, "saves\\{}".format(id))
         with open(self.config_path, "w") as f:
