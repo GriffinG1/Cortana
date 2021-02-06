@@ -73,9 +73,9 @@ class Logger(commands.Cog):
         self.guild = self.config["guild"]
         if not os.path.isdir(os.path.join(self.path, "saves")):
             os.mkdir(os.path.join(self.path, "saves"))
-        if not os.path.exists(os.path.join(self.path, "saves\\{}".format(self.config["guild"]))):
-            os.mkdir(os.path.join(self.path, "saves\\{}".format(self.config["guild"])))
-        self.storage_path = os.path.join(self.path, "saves\\{}".format(self.config["guild"]))
+        if not os.path.exists(os.path.join(self.path, f"saves\\{self.config['guild']}")):
+            os.mkdir(os.path.join(self.path, f"saves\\{self.config['guild']}"))
+        self.storage_path = os.path.join(self.path, f"saves\\{self.config['guild']}")
         auth_user_str = ", ".join(str(x) for x in self.auth_users)
         print(f"Addon \"{self.__class__.__name__}\" loaded")
         print(f"Current logging state is: {self.enable_logging}.")
@@ -95,7 +95,7 @@ class Logger(commands.Cog):
         except discord.HTTPException:
             return await ctx.send("That's not a server!")
         self.guild = id
-        self.storage_path = os.path.join(self.path, "saves\\{}".format(id))
+        self.storage_path = os.path.join(self.path, f"saves\\{id}")
         with open(self.config_path, "w") as f:
             json.dump(self.config, f, indent=4)
         await ctx.send(f"Set logging guild ID to `{id}`.")
