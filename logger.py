@@ -41,14 +41,14 @@ class Logger(commands.Cog):
         self.path = os.path.dirname(os.path.realpath(__file__))
         self.config_path = os.path.join(self.path, "logger_config.json")
         if not os.path.exists(self.config_path):
-            with open(self.config_path, "w") as f:
-                json.dump(CONFIG_CONTENTS, f, indent=4)
+            with open(self.config_path, "w") as file:
+                json.dump(CONFIG_CONTENTS, file, indent=4)
             print(f"Config did not exist. Created config at {self.config_path}")
-        with open(self.config_path, "r") as f:
-            self.config = json.load(f)
+        with open(self.config_path, "r") as file:
+            self.config = json.load(file)
         if self.config["config_version"] != CURR_CONFIG_VERSION:
             print("Logger config is outdated. Replacing config with latest...")
-            with open(self.config_path, "w") as f:
+            with open(self.config_path, "w") as file:
                 temp_config = CONFIG_CONTENTS
                 try:
                     temp_config["guild"] = self.config["guild"]
@@ -61,7 +61,7 @@ class Logger(commands.Cog):
                     except KeyError:
                         print(f"Could not set '{item}' as it has been deprecated.")
                 self.config = temp_config
-                json.dump(temp_config, f, indent=4)
+                json.dump(temp_config, file, indent=4)
                 print("Finished replacing config. Please verify your settings.")
         self.enable_logging = self.config["options"]["enable_logger"]
         self.log_mod_actions = self.config["options"]["log_moderator_actions"]
@@ -88,7 +88,7 @@ class Logger(commands.Cog):
     @commands.command(name="setguild")
     async def set_guild(self, ctx, id: int):
         """Sets config["guild"] to inputted ID"""
-        if not ctx.author.id in self.auth_users:
+        if ctx.author.id not in self.auth_users:
             raise commands.CheckFailure
         try:
             await self.bot.fetch_guild(id)
@@ -96,8 +96,8 @@ class Logger(commands.Cog):
             return await ctx.send("That's not a server!")
         self.guild = id
         self.storage_path = os.path.join(self.path, f"saves\\{id}")
-        with open(self.config_path, "w") as f:
-            json.dump(self.config, f, indent=4)
+        with open(self.config_path, "w") as file:
+            json.dump(self.config, file, indent=4)
         await ctx.send(f"Set logging guild ID to `{id}`.")
 
     @commands.group(name="authusers")
@@ -106,11 +106,11 @@ class Logger(commands.Cog):
         if not ctx.invoked_subcommand:
             auth_users_str = ", ".join(str(x) for x in self.auth_users)
             return await ctx.send(f"Authorized user IDs: {auth_users_str}\nYou can use the subcommands `add` and `remove` to adjust authorized users.")
-    
+
     @auth.command()
     async def add(self, ctx, id: int):
         """Adds an authorized user"""
-        if not ctx.author.id in self.auth_users:
+        if ctx.author.id not in self.auth_users:
             raise commands.CheckFailure
         elif id == MODULE_CREATOR_ID and len(self.auth_users) == 1:
             self.auth_users.remove(id)
@@ -121,14 +121,14 @@ class Logger(commands.Cog):
         except discord.NotFound:
             return await ctx.send("That user could not be found!")
         self.auth_users.append(int(id))
-        with open(self.config_path, "w") as f:
-            json.dump(self.config, f, indent=4)
+        with open(self.config_path, "w") as file:
+            json.dump(self.config, file, indent=4)
         await ctx.send(f"Authorized user with ID `{id}`")
 
     @auth.command()
     async def remove(self, ctx, id: int):
         """Removes an authorized user. If all users are removed, adds back bot creator ID."""
-        if not ctx.author.id in self.auth_users:
+        if ctx.author.id not in self.auth_users:
             raise commands.CheckFailure
         elif id not in self.auth_users:
             return await ctx.send("That user isn't authorized!")
@@ -139,8 +139,8 @@ class Logger(commands.Cog):
         except discord.NotFound:
             return await ctx.send("That user could not be found!")
         self.auth_users.remove(int(id))
-        with open(self.config_path, "w") as f:
-            json.dump(self.config, f, indent=4)
+        with open(self.config_path, "w") as file:
+            json.dump(self.config, file, indent=4)
         if len(self.auth_users) == 0:
             self.auth_users.append(MODULE_CREATOR_ID)
             return await ctx.send(f"Deauthorized user with ID `{id}`. This was the last authorized user, so the module creator was added to the RAM list.")
